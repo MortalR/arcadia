@@ -1,0 +1,26 @@
+local player_module = require(game:GetService("Players").LocalPlayer.PlayerScripts.Global.Player)
+local packet_module = require(game:GetService("ReplicatedStorage").Shared.Networking.Packet)
+player_module.OnFire = (function(p_u_96, p97, p98)
+    local v99 = (p_u_96.scene.camera:ConvertScreenToWorld(p97) - p_u_96.body:GetCenter()).Unit
+    local v100 = v99.Y
+    local v101 = v99.X
+    local v102 = math.atan2(v100, v101)
+    local v103 = p_u_96.equippedPrimary:GetProjectileDescriptor()
+    local v_u_104 = v103:GetTotalBlasts()
+    local v_u_105 = p_u_96.projectileManager:GetNextProjectileId(v_u_104)
+    p_u_96.firingDirection = v99
+    print(v99, v102, v_u_104, v_u_105) 
+    p_u_96:EmitProjectiles(v103, v102, nil, v_u_105)
+    local v106, v107 = p_u_96.equippedPrimary:GetAttackSfx()
+    local v108 = p_u_96:GetScene():GetSession():GetReplicationHandler()
+    local v109 = packet_module.PLAYER_SHOOT
+    local v110 = workspace:GetServerTimeNow()
+    local v111 = p_u_96.body:GetCenter()
+    local v112 = v99.Y
+    local v113 = v99.X
+    v108:SetValue(v109, v110, v111, (math.atan2(v112, v113)))
+    p_u_96:SetProjectilesPendingReplication(v_u_105, v_u_104, true)
+    v108.Replicated:Once(function()
+        p_u_96:SetProjectilesPendingReplication(v_u_105, v_u_104, nil)
+    end)
+end)
